@@ -49,6 +49,7 @@ cp config.example.json config.json
 | `canvas_url` | Canvas 地址 |
 | `entry_year` | 入学年份（秋季入学）。用来把 `2026FA` 换算成「大二秋季」 |
 | `max_mb` | 超过这个大小的文件先问你 |
+| `mirror_dir` | 可选。填一个云盘文件夹（比如 OneDrive 里的 `学习`），每次同步后把各学期课件单向复制过去，只增不删。留空就不备份 |
 
 ## 每天自动检查（可选）
 
@@ -62,6 +63,7 @@ cp config.example.json config.json
 - `scripts/local_index.py`：列出本地已有的文件
 - `scripts/canvas_scan.js`：在 Canvas 页面里运行，找出缺哪些文件
 - `scripts/file_downloads.py`：把「下载」文件夹里的新文件挪进课程文件夹，按需解压
+- `scripts/mirror.py`：把各学期文件夹复制到云盘备份目录
 - `config.example.json`：示例配置
 
 ## 许可证

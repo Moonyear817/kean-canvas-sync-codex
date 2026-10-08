@@ -12,7 +12,7 @@ description: |
 <root>/<学期文件夹>/<课程代码>/
 ```
 
-设置在本 skill 目录的 `config.json`（没有就用 `config.example.json`）：`root` 课件根目录、`canvas_url`、`entry_year` 入学年份（秋季入学）、`max_mb` 大文件阈值。下文的 `<root>`、`<canvas_url>` 都指这里的值。
+设置在本 skill 目录的 `config.json`（没有就用 `config.example.json`）：`root` 课件根目录、`canvas_url`、`entry_year` 入学年份（秋季入学）、`max_mb` 大文件阈值、`mirror_dir` 云端备份目录（可空）。下文的 `<root>`、`<canvas_url>` 都指这里的值。
 
 - 学期文件夹由课程名前缀推出：`2026FAW*...` → `2026FA` → 若 entry_year=2025 则为 **大二秋季**（秋季 Y 年 = 大(Y-entry_year+1)，春/夏季 Y 年 = 大(Y-entry_year)）。新学期文件夹、新课程文件夹不存在就直接建。
 - 课程代码：`ACCT*2200*W05` → `ACCT2200`。
@@ -61,7 +61,7 @@ python3 $S/local_index.py > /tmp/canvas_local.json
 - `NOT_LOGGED_IN`：请用户在这个浏览器里登录 Canvas，然后停下。自动化运行时就直接结束并报告"未登录"。
 - 否则返回 JSON 摘要 `{todo, todoMB, big, skipped, unknownCourses}`。完整列表存在页面的 `window.__todo / __big / __skipped` 里。
 
-`todo` 为 0 且 `big` 为 0 时，直接告诉用户"没有新课件"，关掉标签页，结束。
+`todo` 为 0 且 `big` 为 0 时，关掉标签页，跳到第 6 步（同步到云端），然后告诉用户"没有新课件"。
 
 ### 3. 取出待下载列表
 
@@ -91,7 +91,15 @@ python3 $S/file_downloads.py /tmp/canvas_todo.tsv <开始时间>
 
 输出 JSON 报告。如果有 `missing`，就用它们的 id 重新导航一次，再跑一遍脚本。第二次还缺的，写进报告。
 
-### 6. 收尾
+### 6. 同步到云端
+
+```bash
+python3 $S/mirror.py
+```
+
+把各学期文件夹单向复制到 `mirror_dir`（例如学校 OneDrive），只增不删。每次运行都执行，即使这次没有新课件——用户自己改过的作业也会跟着更新上去。`mirror_dir` 为空时脚本会自动跳过。
+
+### 7. 收尾
 
 关掉自己开的标签页，删掉 `/tmp/canvas_*.json|tsv`，然后给用户报告，格式如下：
 
